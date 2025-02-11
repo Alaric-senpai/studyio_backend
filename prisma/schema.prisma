@@ -1,0 +1,293 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  hash     String
+  role     Role     @default(STUDENT)
+  isActive Boolean  @default(true)
+  profile  Profile?
+  Gender   Gender?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  refreshToken String?
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+  DEVELOPER
+}
+
+enum LearningModel {
+  MCBC
+  M844
+}
+model Profile {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone     String
+  address   String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+enum CurrentClass {
+  PREPRIMARY // Early Childhood Education (Pre-Kindergarten)
+  C1 // Class 1 (Standard 1 in Kenya) - Lower Primary (CBC)
+  C2 // Class 2 (Standard 2 in Kenya) - Lower Primary (CBC)
+  C3 // Class 3 (Standard 3 in Kenya) - Lower Primary (CBC)
+  C4 // Class 4 (Standard 4 in Kenya) - Upper Primary (CBC)
+  C5 // Class 5 (Standard 5 in Kenya) - Upper Primary (CBC)
+  C6 // Class 6 (Standard 6 in Kenya) - Upper Primary (CBC)
+  C7 // Class 7 (Standard 7 in Kenya) - Junior Secondary (CBC)
+  C8 // Class 8 (Standard 8 in Kenya) - Junior Secondary (CBC)
+  J1 // Junior Secondary Year 1 (Grade 9 in CBC)
+  J2 // Junior Secondary Year 2 (Grade 10 in CBC)
+  J3 // Junior Secondary Year 3 (Grade 11 in CBC)
+  S1 // Senior Secondary Year 1 (Grade 12 in CBC)
+  S2 // Senior Secondary Year 2 (Grade 13 in CBC)
+  S3 // Senior Secondary Year 3 (Grade 14 in CBC)
+  FORM1 // First year of secondary (Form 1 in Kenya)
+  FORM2 // Second year of secondary (Form 2 in Kenya)
+  FORM3 // Third year of secondary (Form 3 in Kenya)
+  FORM4 // Fourth year of secondary (Form 4 in Kenya)
+  FORM5 // Fifth year of secondary (Optional in some systems)
+  FORM6 // Sixth year of secondary (Optional in some systems)
+}
+enum StudentStatus {
+  SUSPENDED
+  INSCHOOL
+}
+model Student {
+  id         Int           @id @default(autoincrement())
+  userId     Int           @unique
+  classId    CurrentClass
+  status     StudentStatus @default(INSCHOOL)
+  isPrefect  Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+model StudentLeaders {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  Position  String
+  term      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Teacher {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  Class     Int?
+  gender    Gender?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Admin {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  gender      Gender?
+  accessLevel Priority @default(HIGH)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+model Developer {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Errors {
+  id          Int      @id @default(autoincrement())
+  type        String
+  status      error @default(REPORTED)
+  description String?
+  ErrorMsg    String
+  ReportedBy  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+enum error {
+  REPORTED
+  RESOLVED
+}
+model Parent {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  students  Int[]    @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Class {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  level         EducationLevel?
+  model         LearningModel
+  students      Int @default(0)
+  TimetableCode Int?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+enum EducationLevel {
+  PRE_PRIMARY
+  LOWER_PRIMARY
+  UPPER_PRIMARY
+  JUNIOR_SECONDARY
+  SENIOR_SECONDARY
+  TERTIARY
+}
+model Subject {
+  id          Int             @id @default(autoincrement())
+  name        String          @unique
+  level       EducationLevel?
+  class       Int?  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+model Assignment {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  subjectId Int
+  dueDate   DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Exam {
+  id        Int      @id @default(autoincrement())
+  creator   Int
+  title     String
+  type      String
+  isActive  Boolean  @default(true)
+  Startdate DateTime
+  EndDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+
+model Result {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  examId    Int
+  score     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model FeeStructure{
+  id Int @default(autoincrement()) @id
+  title String
+  Amount  Float
+  Term    Int
+  Class    CurrentClass
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Accounting {
+  id        Int       @id @default(autoincrement())
+}
+model FeesRecords {
+  id        Int       @id @default(autoincrement())
+  structureId  Int
+  studentId Int
+  amount    Float 
+  balance   Float @default(0.00)
+  overpay  Float? @default(0.00)
+  paymentMethod String
+  status    FeeStatus @default(PENDING)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+enum FeeStatus {
+  FULLYPAID
+  PENDING
+  OVERPAID
+}
+
+model DocumentUpload {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  filename        String
+  url             String
+  description     String?
+  storageProvider String
+  docType         String
+  priority        Priority @default(NORMAL)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  date        DateTime
+  description String?
+  imagelink   String?
+  venue       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Blog {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  authorId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Timetable {
+  id        Int      @id @default(autoincrement())
+  classId   Int
+  day       String
+  period    String
+  subjectId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  device    String?
+  type      LogType
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+enum LogType {
+  LOGIN
+  LOGOUT
+  DOWNLOAD
+}

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Errors" ALTER COLUMN "status" SET DEFAULT 'REPORTED';

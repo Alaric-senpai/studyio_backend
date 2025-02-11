@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Class" ADD COLUMN     "students" INTEGER NOT NULL DEFAULT 0,
+ALTER COLUMN "TimetableCode" DROP NOT NULL;
