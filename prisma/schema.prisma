@@ -8,16 +8,16 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String
-  email    String   @unique
-  hash     String
-  role     Role     @default(STUDENT)
-  isActive Boolean  @default(true)
-  profile  Profile?
-  Gender   Gender?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  hash         String
+  role         Role     @default(STUDENT)
+  isActive     Boolean  @default(true)
+  profile      Profile?
+  gender       Gender?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   refreshToken String?
 }
 
@@ -33,6 +33,7 @@ enum LearningModel {
   MCBC
   M844
 }
+
 model Profile {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
@@ -43,6 +44,7 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 enum CurrentClass {
   PREPRIMARY // Early Childhood Education (Pre-Kindergarten)
   C1 // Class 1 (Standard 1 in Kenya) - Lower Primary (CBC)
@@ -66,19 +68,22 @@ enum CurrentClass {
   FORM5 // Fifth year of secondary (Optional in some systems)
   FORM6 // Sixth year of secondary (Optional in some systems)
 }
+
 enum StudentStatus {
   SUSPENDED
   INSCHOOL
 }
+
 model Student {
-  id         Int           @id @default(autoincrement())
-  userId     Int           @unique
-  classId    CurrentClass
-  status     StudentStatus @default(INSCHOOL)
-  isPrefect  Boolean       @default(false)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  id        Int           @id @default(autoincrement())
+  userId    Int           @unique
+  classId   CurrentClass
+  status    StudentStatus @default(INSCHOOL)
+  isPrefect Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
+
 model StudentLeaders {
   id        Int      @id @default(autoincrement())
   studentId Int
@@ -88,42 +93,46 @@ model StudentLeaders {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Teacher {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
   Class     Int?
-  gender    Gender?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Admin {
   id          Int      @id @default(autoincrement())
-  userId      Int
-  gender      Gender?
+  userId      Int      @unique
   accessLevel Priority @default(HIGH)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 model Developer {
   id        Int      @id @default(autoincrement())
-  userId    Int
+  userId    Int      @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Errors {
-  id          Int      @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   type        String
-  status      error @default(REPORTED)
+  status      ErrorStatus @default(REPORTED)
   description String?
   ErrorMsg    String
   ReportedBy  Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
-enum error {
+
+enum ErrorStatus {
   REPORTED
   RESOLVED
 }
+
 model Parent {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
@@ -131,16 +140,18 @@ model Parent {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Class {
   id            Int             @id @default(autoincrement())
   name          String          @unique
   level         EducationLevel?
   model         LearningModel
-  students      Int @default(0)
+  students      Int             @default(0)
   TimetableCode Int?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 }
+
 enum EducationLevel {
   PRE_PRIMARY
   LOWER_PRIMARY
@@ -149,22 +160,24 @@ enum EducationLevel {
   SENIOR_SECONDARY
   TERTIARY
 }
+
 model Subject {
-  id          Int             @id @default(autoincrement())
-  name        String          @unique
-  level       EducationLevel?
-  class       Int?  
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id        Int             @id @default(autoincrement())
+  name      String          @unique
+  level     EducationLevel?
+  class     Int?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 }
+
 model Assignment {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   title     String
   content   String
   subjectId Int
   dueDate   DateTime
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Exam {
@@ -179,12 +192,10 @@ model Exam {
   updatedAt DateTime @updatedAt
 }
 
-
 enum Gender {
   MALE
   FEMALE
 }
-
 
 model Result {
   id        Int      @id @default(autoincrement())
@@ -195,31 +206,31 @@ model Result {
   updatedAt DateTime @updatedAt
 }
 
-
-model FeeStructure{
-  id Int @default(autoincrement()) @id
-  title String
-  Amount  Float
-  Term    Int
-  Class    CurrentClass
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model FeeStructure {
+  id        Int          @id @default(autoincrement())
+  title     String
+  Amount    Float
+  Term      Int
+  Class     CurrentClass
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
 
 model Accounting {
-  id        Int       @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 }
+
 model FeesRecords {
-  id        Int       @id @default(autoincrement())
-  structureId  Int
-  studentId Int
-  amount    Float 
-  balance   Float @default(0.00)
-  overpay  Float? @default(0.00)
+  id            Int       @id @default(autoincrement())
+  structureId   Int
+  studentId     Int
+  amount        Float
+  balance       Float     @default(0.00)
+  overpay       Float?    @default(0.00)
   paymentMethod String
-  status    FeeStatus @default(PENDING)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  status        FeeStatus @default(PENDING)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 enum FeeStatus {
@@ -234,8 +245,8 @@ model DocumentUpload {
   filename        String
   url             String
   description     String?
-  storageProvider String
-  docType         String
+  storageProvider String @default("local")
+  MimeType         String
   priority        Priority @default(NORMAL)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -290,4 +301,15 @@ enum LogType {
   LOGIN
   LOGOUT
   DOWNLOAD
+}
+model RequestLog {
+  id          Int      @id @default(autoincrement())
+  method      String
+  url         String
+  host        String?
+  ip          String?
+  userAgent   String?
+  statusCode  Int
+  responseTime Int
+  timestamp   DateTime @default(now())
 }

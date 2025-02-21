@@ -1,20 +1,24 @@
-import { error } from "@prisma/client"
-import { IsNotEmpty, IsString } from "class-validator"
+import { ErrorStatus } from "@prisma/client"; // Ensure the correct enum name
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateErrorDto {
     @IsNotEmpty()
     @IsString()
-    type:string
+    type: string;
+
+    @IsOptional()
+    @IsEnum(ErrorStatus) // Ensure this is the correct Prisma enum
+    status?: ErrorStatus;
+
+    @IsOptional()
+    @IsString()
+    description?: string;
+
     @IsNotEmpty()
     @IsString()
-    status?:error
+    ErrorMsg: string; // Renamed for consistency
+
     @IsNotEmpty()
-    @IsString()
-    description?:string
-    @IsNotEmpty()
-    @IsString()
-    ErrorMsg:string
-    @IsNotEmpty()
-    @IsString()    
-    ReportedBy:number
+    @IsInt()    
+    ReportedBy: number; // Renamed for consistency
 }

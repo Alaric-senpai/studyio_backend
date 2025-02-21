@@ -8,7 +8,7 @@ import { JwtGuard } from 'src/auth/guard';
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
 
-  @Post('create')
+  @Post('new')
   create(@Body() createExamDto: CreateExamDto) {
     return this.examService.create(createExamDto);
   }

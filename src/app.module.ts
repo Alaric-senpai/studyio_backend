@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
@@ -16,6 +16,11 @@ import { ClassModule } from './class/class.module';
 import { EventModule } from './event/event.module';
 import { AssignmentModule } from './assignment/assignment.module';
 import { BlogModule } from './blog/blog.module';
+import { LoggerMiddleware } from './logger.middleware';
+import { ErrorModule } from './error/error.module';
+import { ExamModule } from './exam/exam.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { FILE_UPLOAD_DESTINATION } from '../constants';
 
 
 @Module({
@@ -24,6 +29,12 @@ import { BlogModule } from './blog/blog.module';
     ConfigModule.forRoot({ isGlobal: true }),
     JwtModule.register({
         global:true
+    }),
+    MulterModule.register({
+      dest:FILE_UPLOAD_DESTINATION,
+      limits: {
+        fileSize: 1000 * 1000 * 20
+      }
     }),
     AuthModule,
     UsersModule,
@@ -39,8 +50,13 @@ import { BlogModule } from './blog/blog.module';
     ClassModule,
     EventModule,
     BlogModule,
-    
+    ErrorModule,
+    ExamModule
 
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*')
+  }
+}

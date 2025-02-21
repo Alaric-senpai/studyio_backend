@@ -5,16 +5,16 @@ import { UpdateFeeStructureDto } from './dto/update-fee-structure.dto';
 import { JwtGuard } from 'src/auth/guard';
 
 @UseGuards(JwtGuard)
-@Controller('fee-structure')
+@Controller('structure')
 export class FeeStructureController {
   constructor(private readonly feeStructureService: FeeStructureService) {}
 
-  @Post()
+  @Post('new')
   create(@Body() createFeeStructureDto: CreateFeeStructureDto) {
     return this.feeStructureService.create(createFeeStructureDto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.feeStructureService.findAll();
   }

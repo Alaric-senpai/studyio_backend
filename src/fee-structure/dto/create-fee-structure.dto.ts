@@ -1,19 +1,19 @@
 import { CurrentClass } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
-import { IsDecimal, IsInt, IsNotEmpty, IsNotEmptyObject, IsString } from "class-validator";
+import { IsNumber, IsInt, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateFeeStructureDto {
-
     @IsString()
     @IsNotEmpty()
-    title:string;
+    title: string;
+
     @IsNotEmpty()
-    @IsDecimal()
-    Amount:any;
+    @IsNumber({ allowInfinity: false, allowNaN: false }, { message: "Amount must be a valid number" })
+    Amount: number;
+
     @IsNotEmpty()
     @IsInt()
     Term: number;
+
     @IsNotEmpty()
     Class: CurrentClass;
-
 }

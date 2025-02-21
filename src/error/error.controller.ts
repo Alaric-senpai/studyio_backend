@@ -9,12 +9,14 @@ import { JwtGuard } from 'src/auth/guard';
 export class ErrorController {
   constructor(private readonly errorService: ErrorService) {}
 
-  @Post()
+  @Post('new')
   create(@Body() createErrorDto: CreateErrorDto) {
+    console.log(createErrorDto)
+    console.log('invoked')
     return this.errorService.create(createErrorDto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.errorService.findAll();
   }

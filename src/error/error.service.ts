@@ -1,7 +1,8 @@
-import { ForbiddenException, Injectable, MethodNotAllowedException, NotFoundException, PreconditionFailedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, MethodNotAllowedException, NotFoundException, PreconditionFailedException } from '@nestjs/common';
 import { CreateErrorDto } from './dto/create-error.dto';
 import { UpdateErrorDto } from './dto/update-error.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ErrorService {
@@ -18,7 +19,7 @@ export class ErrorService {
       throw new PreconditionFailedException('faile');
     }
 
-    return crt
+    return {...crt, message: 'error registered succesfully'}
   }
 
   findAll() {
@@ -54,11 +55,13 @@ export class ErrorService {
       throw new ForbiddenException('update failed')
     }
 
-    return upd
+    return {...upd, message: 'error updated succesfuly'}
   }
 
  async remove(id: number) {
-    return await this.prisma.errors.delete({
+  try {
+    
+    const err =  await this.prisma.errors.delete({
       where: {
         id:id
       },
@@ -66,5 +69,19 @@ export class ErrorService {
         id:true
       }
     })
+
+    if(!err){
+      throw new BadRequestException('request is bad')
+    }
+
+    return {message:'error deleted sucessfully'}
+  } catch (error) {
+    if(error instanceof PrismaClientKnownRequestError){
+      if(error.code === 'P2025'){
+        throw new ConflictException('error alrready deleted')
+      }
+    }
   }
+  throw new NotFoundException()
+}
 }

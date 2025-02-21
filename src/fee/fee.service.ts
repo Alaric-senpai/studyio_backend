@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateFeeDto } from './dto/create-fee.dto';
 import { UpdateFeeDto } from './dto/update-fee.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -8,17 +8,8 @@ import { FeeStatus } from '@prisma/client';
 export class FeeService {
   constructor(private prisma:PrismaService){}
   async create(createFeeDto: CreateFeeDto) {
-
-    // const prevPayment = await this.prisma.feesRecords.findUnique({
-    //   where: {
-    //     studentId: createFeeDto.studentId
-    //   }
-    // })
-
-
+    console.log(createFeeDto)
     let status:FeeStatus;
-
-
     const structure = await this.prisma.feeStructure.findUnique({
       where: {
         id: createFeeDto.structureId
@@ -87,12 +78,22 @@ export class FeeService {
     })
   }
 
-  findStudentRecords(id:number){
-    return this.prisma.feesRecords.findMany({
-      where: {
-        studentId: id
+  async findStudentRecords(studentId: number) {
+    try {
+      const studentFees = await this.prisma.feesRecords.findMany({
+        where: {
+          studentId: studentId,
+        },
+      });
+
+      if (!studentFees.length) {
+        throw new NotFoundException('No fee records found for this student');
       }
-    })
+
+      return studentFees;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message || 'Failed to retrieve fee records');
+    }
   }
 
   update(id: number, updateFeeDto: UpdateFeeDto) {

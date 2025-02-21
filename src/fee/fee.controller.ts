@@ -17,24 +17,22 @@ export class FeeController {
   findAll() {
     return this.feeService.findAll();
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  // Route to find fee by ID
+  @Get()
+  findOne(@Query('id') id: string) {
     return this.feeService.findOne(+id);
   }
 
-
-  @Get('by-role')
-  findById(@Query('student') student:number){
-    return this.feeService.findStudentRecords(student)
-
+  // Route to find fee by student ID
+  @Get('by-student')  // Explicit path for query-based search
+  findByStudent(@Query('student') student: number) {
+    return this.feeService.findStudentRecords(student);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateFeeDto: UpdateFeeDto) {
     return this.feeService.update(+id, updateFeeDto);
   }
-
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.feeService.remove(+id);

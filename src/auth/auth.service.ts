@@ -24,7 +24,7 @@ export class AuthService {
     }
 
     // Generate tokens
-    const tokens = await this.generateTokens(user.id, user.email);
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
 
     // Store hashed refresh token in DB
     await this.saveRefreshToken(user.id, tokens.refreshToken);
@@ -35,8 +35,8 @@ export class AuthService {
     return tokens
   }
 
-  async generateTokens(userId: number, email: string) {
-    const payload = { sub: userId, email };
+  async generateTokens(userId: number, email: string, role:string) {
+    const payload = { sub: userId, email, role };
 
     const accessToken = await this.jwt.signAsync(payload, {
       secret: process.env.HASH_KEY,
@@ -48,7 +48,7 @@ export class AuthService {
       expiresIn: '7d', // Refresh Token expires in 7 days
     });
 
-    return { accessToken, refreshToken, userId };
+    return { accessToken, refreshToken, userId, role };
   }
 
   async saveRefreshToken(userId: number, refreshToken: string) {
@@ -75,7 +75,7 @@ export class AuthService {
     }
   
     // Generate new access and refresh tokens
-    const tokens = await this.generateTokens(user.id, user.email);
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
   
     // Store new hashed refresh token
     await this.saveRefreshToken(user.id, tokens.refreshToken);

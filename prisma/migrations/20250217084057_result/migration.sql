@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "RequestLog" ALTER COLUMN "host" DROP NOT NULL,
+ALTER COLUMN "ip" DROP NOT NULL;

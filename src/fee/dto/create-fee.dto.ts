@@ -1,5 +1,5 @@
 import { FeeStatus } from "@prisma/client";
-import { IsDecimal, IsInt, IsNotEmpty, IsString } from "class-validator";
+import { IsDecimal, IsInt, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateFeeDto {
     @IsNotEmpty()
@@ -9,11 +9,11 @@ export class CreateFeeDto {
     @IsInt()
     studentId:number;
     @IsNotEmpty()
-    @IsDecimal()
+    @IsNumber({allowInfinity: false, allowNaN: false})
     amount:any;
-    @IsNotEmpty()
-    @IsDecimal()
-    balance:any
+    // @IsNotEmpty()
+    // @IsDecimal()
+    // balance:any
     @IsNotEmpty()
     @IsString()
     paymentMethod:string;

@@ -40,8 +40,8 @@ export class UsersController {
   }
 
   @Get('by-status')
-  GetbyStatus(@Query('status') status:boolean ){
-    return this.usersService.findByState(status)
+  GetbyStatus(@Query('active') active:boolean ){
+    return this.usersService.findByState(active)
   }
 
   @Get(':id') // ✅ Now it won't interfere with 'by-role'
@@ -55,7 +55,10 @@ export class UsersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    console.log('invoked');
+    console.log(updateUserDto)
     const userId = parseInt(id, 10);
+    console.log(userId)
     if (isNaN(userId)) {
       throw new BadRequestException('Invalid user ID');
     }

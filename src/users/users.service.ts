@@ -23,7 +23,7 @@ export class UsersService {
           name: `${createUserDto.firstname} ${createUserDto.lastname}`,
           hash,
           role: createUserDto.role,
-          Gender:createUserDto.gender
+          gender:createUserDto.gender
         },
         select: {
           id: true,
@@ -77,8 +77,10 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
+        gender:true,
         role: true,
         createdAt: true,
+        updatedAt:true
       },
     });
   }
@@ -114,6 +116,7 @@ export class UsersService {
           email: true,
           name: true,
           role: true,
+          gender:true,
           createdAt: true,
         },
       });
@@ -128,20 +131,91 @@ export class UsersService {
   }
 
   // Delete a single user
-  async remove(id: number) {
-    try {
-      return await this.prisma.user.delete({
-        where: { id },
-      });
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new ForbiddenException('User not found');
+async remove(id: number) {
+  // Step 1: Find the user
+  const user = await this.findOne(id);
+
+  // Step 2: Remove user from the respective role-based model
+  try {
+    switch (user.role) {
+      case 'ADMIN':
+        // Find the Admin record using userId, then delete it by id if it exists
+        const admin = await this.prisma.admin.findUnique({ where: { userId: id } });
+        if (admin) {
+          await this.prisma.admin.delete({ where: { id: admin.id } });
         }
-      }
-      throw new InternalServerErrorException('Could not delete user');
+        break;
+      case 'PARENT':
+        try {
+          await this.prisma.parent.delete({ where: { userId: id } });
+        } catch (error) {
+          // Skip if the record doesn't exist
+          if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+            console.log('Parent record not found, skipping delete.');
+          } else {
+            throw new InternalServerErrorException('Failed to remove parent record');
+          }
+        }
+        break;
+      case 'TEACHER':
+        try {
+          await this.prisma.teacher.delete({ where: { userId: id } });
+        } catch (error) {
+          // Skip if the record doesn't exist
+          if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+            console.log('Teacher record not found, skipping delete.');
+          } else {
+            throw new InternalServerErrorException('Failed to remove teacher record');
+          }
+        }
+        break;
+      case 'STUDENT':
+        try {
+          await this.prisma.student.delete({ where: { userId: id } });
+        } catch (error) {
+          // Skip if the record doesn't exist
+          if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+            console.log('Student record not found, skipping delete.');
+          } else {
+            throw new InternalServerErrorException('Failed to remove student record');
+          }
+        }
+        break;
+      case 'DEVELOPER':
+        try {
+          await this.prisma.developer.delete({ where: { userId: id } });
+        } catch (error) {
+          // Skip if the record doesn't exist
+          if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+            console.log('Developer record not found, skipping delete.');
+          } else {
+            throw new InternalServerErrorException('Failed to remove developer record');
+          }
+        }
+        break;
+      default:
+        console.log('No specific user type for deletion or type not recognized');
+        break;
     }
+  } catch (error) {
+    console.error('Error during user role-based record deletion:', error);
+    throw new InternalServerErrorException('Error deleting role-specific record');
   }
+
+  // Step 3: Remove the user from the `User` table
+  try {
+    return await this.prisma.user.delete({
+      where: { id },
+    });
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        throw new ForbiddenException('User not found');
+      }
+    }
+    throw new InternalServerErrorException('Could not delete user');
+  }
+}
 
 
 
@@ -164,8 +238,6 @@ export class UsersService {
       }
     })
   }
-
-  
 
 
 }

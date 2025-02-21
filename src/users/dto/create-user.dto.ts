@@ -1,31 +1,34 @@
 import { Gender, Role } from "@prisma/client";
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, IsOptional, IsEnum } from "class-validator";
 
 export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
-    firstname:string;
+    firstname: string;
+
     @IsString()
     @IsNotEmpty()
-    lastname:string;
-    @IsString()
+    lastname: string;
+
+    @IsEnum(Role)
     @IsNotEmpty()
-    role:Role;
+    role: Role;
+
     @IsEmail()
-    email:string;
+    email: string;
+
     @IsString()
     @IsNotEmpty()
-    password:string;
+    password: string;
+
     @IsNotEmpty()
-    phone:number|String;
-    address?:String;
-    gender:Gender    
+    phone: number | string;
+
+    @IsOptional()
+    @IsString()
+    address?: string;
+
+    @IsOptional()  // Marked as optional here
+    @IsEnum(Gender)
+    gender?: Gender;
 }
-// enum Role {
-//     ADMIN,
-//     TEACHER,
-//     STUDENT,
-//     PARENT,
-//     DEVELOPER
-// }
-  

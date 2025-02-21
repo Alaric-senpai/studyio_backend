@@ -19,7 +19,7 @@ export class AuthController {
 
   @Post('refresh')
   async refreshToken(@Req() req, @Body() body) {
-    const userId = req.user.sub;
+    const userId = body.id;
     return this.authService.refreshTokens(userId, body.refreshToken);
   }
 
@@ -27,10 +27,7 @@ export class AuthController {
   @Post('logout')
   Logout(@Body() log: {userId:any} ){
     console.log(log)
-
     const id = parseInt(log.userId)
-
     return this.authService.logout(id)
   }
-  
 }

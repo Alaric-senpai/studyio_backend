@@ -1,10 +1,9 @@
-import { ForbiddenException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, GoneException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { JwtGuard } from 'src/auth/guard';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-@UseGuards(JwtGuard)
 @Injectable()
 export class ClassService {
   constructor(private prisma:PrismaService){}
@@ -26,31 +25,48 @@ export class ClassService {
     if(!clss){
       throw new NotFoundException('class record does not exist')
     }
+    return clss
   }
-  async update(id: number, updateClassDto: UpdateClassDto) {
-    const upd = await this.prisma.class.update({
-      where: {
-        id:id
-      },
-      data:updateClassDto,
-      select: {
-        id:true,
-        name:true
-      }
-    })
+async update(id: number, data: UpdateClassDto) {
 
-    if(upd){
-      throw new ForbiddenException('record cannot be updated')
+      try {
+        const upd = await this.prisma.class.update({
+          where: { id },
+          data
+        });
+    
+        return upd;
+      } catch (error) {
+        throw new ForbiddenException('Failed to update record');
+      }
+    }
+    
+  async remove(id: number) {
+    try {
+      const del = await this.prisma.class.delete({
+        where:{
+          id:id
+        }
+      })
+
+      if(!del){
+        throw new InternalServerErrorException('request failed')
+      }
+
+      return {
+        message: 'Record deleted succesfully'
+      }
+      
+    } catch (error) {
+      if(error instanceof PrismaClientKnownRequestError){
+        if(error.code === 'P2025'){
+          throw new GoneException('record already deleted')
+        }
+      }
+
+      throw new BadRequestException('request parameter not met')
     }
 
-    return upd
-  }
-  remove(id: number) {
-    return this.prisma.class.delete({
-      where:{
-        id:id
-      }
-    })
   }
 
 

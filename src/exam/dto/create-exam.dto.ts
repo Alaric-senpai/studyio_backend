@@ -1,22 +1,27 @@
-import { IsDate, IsNotEmpty, IsNumber, isNumber, IsString } from "class-validator";
+import { IsBoolean, IsDateString, IsInt, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateExamDto {
     @IsNotEmpty()
-    @IsNumber()
-    creator:number;
+    @IsInt() // ✅ Changed from @IsNumber() to @IsInt() to match Prisma Int type
+    creator: number;
+
     @IsNotEmpty()
     @IsString()
-    title:string;
+    title: string;
+
     @IsNotEmpty()
     @IsString()
-    type:string;
+    type: string;
+
     @IsNotEmpty()
-    @IsString()
-    isActive:boolean;
+    @IsBoolean()
+    isActive: boolean;
+
     @IsNotEmpty()
-    @IsDate()
-    Startdate:Date;
+    @IsDateString() // ✅ Matches Prisma's DateTime type
+    Startdate: string; // ✅ Matches Prisma field name (capitalized S)
+
     @IsNotEmpty()
-    @IsDate()
-    EndDate:Date ;
+    @IsDateString() // ✅ Matches Prisma's DateTime type
+    EndDate: string; // ✅ Matches Prisma field name (capitalized E)
 }
